@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import pymysql
 import numpy as np
 
+# -------------------------------------------------fromSQL--------------------------------- 
 def toSQL(Data,parameters):
     
     # For query we need to get all the name of the columns
