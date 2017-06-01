@@ -49,6 +49,7 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
     if Signe == 'p':   Signe='+'
     if Signe == 'm':   Signe='-'
     
+
     k=strfindfile(DataFileName,SigName)
     
     if not k:
@@ -133,15 +134,14 @@ def readbinary(DataFileName):
     with open('Variable.txt','r') as fd:
         data = np.loadtxt(fd, delimiter=' ', dtype={'names': ('col1', 'col2', 'col3'), 'formats': ('S30', 'f8', 'S1')})
     
-    data=data.astype(str)
     index_start = 0 ;
     index_end = math.inf ;
     
     Variable = []
     
     for i in range (0,len(data)): 
-        Variable.append(GetTraceFromFile(data[i][0], FileIniNames, DataFileName, vars, index_start, index_end, data[i][2]))
-    return Variable,data
+        Variable.append(GetTraceFromFile(data[i][0].astype(str), FileIniNames, DataFileName, vars, index_start, index_end, data[i][2].astype(str)))
+    return Variable,data.astype(str)
     
 
 
