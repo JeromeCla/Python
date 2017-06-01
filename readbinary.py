@@ -13,18 +13,34 @@ import math
 import mmap
 
 
+# -------------------------------------------------strfindfile--------------------------------- 
+# Input : DataFileName=String of full path of the binary file .bin
+#         SigName = String of the parameter to find
+# Output : k = Position of the parameter's name in the .ini file
+
 
 def strfindfile(DataFileName,SigName):
-    k=[0,0]    
+    k=[0,0]
+    SigName = SigName + ' ' #The whitespace is necessary to search the exact variable     
     FileNameIni = DataFileName[0:-3] + "ini"   
     with open(FileNameIni, 'r') as file, mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ) as s:
         b = bytearray()
         b.extend(SigName.encode())
         k[0]=s.find(b) 
         k[1]=s.find(b,k[0]+1) 
-#    k=open(FileNameIni, 'r').read().find(SigName.astype(str),0)
     return k
 
+# -------------------------------------------------GetTraceFromFile--------------------------------- 
+# Input : SigName = String of the parameter to find 
+#         FileIniName = String of full path of the file .ini
+#         DataFileName = String of full path of the binary file .bin
+#         vars = 
+#         idx_deb = index of first sample
+#         idw__fin = index of last sample (value can be inf to be sure to get all the samples)
+#         Signe = Whether this parameter is (un)signed          
+# Output : Trace = Array of array representing a matrix MxN where M:Number of parameters
+#                                                                 N: Number of samples
+# Work : 
 
 def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin, Signe):
     UndefinedVal=int('cafecafe',16)
@@ -33,8 +49,6 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
     if Signe == 'p':   Signe='+'
     if Signe == 'm':   Signe='-'
     
-
-    SigName = SigName.astype(str) + ' ' 
     k=strfindfile(DataFileName,SigName)
     
     if not k:
@@ -44,6 +58,7 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
 
     LenIniFile = len(FileIniNames);
 
+# Exctract the vparameter's number (i.e id)
     substr=FileIniNames[k[0]:min(k[0]+100,LenIniFile)]
     substr_st = ''.join([chr(item) for item in substr])
     eq=substr_st.find('=')
@@ -52,6 +67,7 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
     list_char=''.join(list_char)
     VarNr=int(list_char)
 
+# Extract the gain (or unit) of the parameter
     substr=FileIniNames[k[1]:min(k[1]+100,LenIniFile)]
     substr_st = ''.join([chr(item) for item in substr])
     eq=substr_st.find('=')
@@ -91,39 +107,41 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
     
     return Trace
 
-
+# -------------------------------------------------readbinary--------------------------------- 
+# Input : DataFileName=String of full path of the binary file .bin
+# Output : Variable = Array of array representing a matrix MxN where M:Number of parameters
+#                                                                    N: Number of samples
+#          Example: Data[i][j] calls the value representing the ith parameter for the jth sample
+# Work : 1) The function open a file "Variable.txt" representing :
+#               a. All the parameters' name : data[i][0]
+#               b. Their corresponding number (i.e id) : data[i][1] (not used here)
+#               c. If they are signed or unsigned data[i][2]
+#        2) The function fills the array Variable with the function GetTraceFromFile 
+#           that returns all the samples for a given parameter    
+       
 def readbinary(DataFileName):
 
     FileNameIni = DataFileName[0:-3] + "ini"
-    
-    
+        
     fid=open(FileNameIni, 'r')
-    FileIniNames=np.fromfile(fid, dtype=np.uint8)
-    
+    FileIniNames=np.fromfile(fid, dtype=np.uint8)    
     fid.close()
     
     vars = 235
     Te   = 0.004
     
-    fd = open('Variable.txt','r');
-    data = np.loadtxt(fd,
-               delimiter=' ',
-               dtype={'names': ('col1', 'col2', 'col3'),
-               'formats': ('S30', 'f8', 'S1')})
-    fd.close() 
+    with open('Variable.txt','r') as fd:
+        data = np.loadtxt(fd, delimiter=' ', dtype={'names': ('col1', 'col2', 'col3'), 'formats': ('S30', 'f8', 'S1')})
     
-    k1 = 0 ;
-    k2 = math.inf ;
+    data=data.astype(str)
+    index_start = 0 ;
+    index_end = math.inf ;
     
     Variable = []
-    i=0 ;
     
-    while i<len(data): 
-        Variable.append(GetTraceFromFile(data[i][0], FileIniNames, DataFileName, vars, k1, k2, data[i][2].astype(str)))
-    #    print(data[i][0].astype(str))
-        i=i+1    
-        print(i)
-    return Variable,data.astype(str)
+    for i in range (0,len(data)): 
+        Variable.append(GetTraceFromFile(data[i][0], FileIniNames, DataFileName, vars, index_start, index_end, data[i][2]))
+    return Variable,data
     
 
 
