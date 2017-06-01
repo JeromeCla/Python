@@ -12,8 +12,8 @@ import numpy as np
 
 DataFileName="_dataint32.bin"
 
-Data,parameters=rb.readbinary(DataFileName) 
+#Data,parameters=rb.readbinary(DataFileName) 
 #sql.toSQL(Data,parameters)
 #Some cleaning 
-#Name = 'Main_USA'
-#data=sql.fromSQL(Name)
+Name = 'Main_USA'
+data=sql.fromSQL(Name)

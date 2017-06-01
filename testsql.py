@@ -62,7 +62,10 @@ def toSQL(Data,parameters):
     
     finally:
         connection.close()
-        
+
+# -------------------------------------------------fromSQL--------------------------------- 
+# Input : Name=String of the parameter's name we want to retrieve
+# Output : k = Position of the parameter's name in the .ini file        
 def fromSQL(Name):
     connection = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='root', db='testdb')            
     try:
