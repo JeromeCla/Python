@@ -16,7 +16,11 @@ import matplotlib.pyplot as plt
 import pymysql
 import numpy as np
 
-# -------------------------------------------------fromSQL--------------------------------- 
+# -------------------------------------------------toSQL--------------------------------- 
+# Input : Data=Data to store to the database
+#         parameters=Name of parameters corresponding to the data to store 
+# Output : -
+# Work :   
 def toSQL(Data,parameters):
     
     # For query we need to get all the name of the columns
@@ -31,18 +35,15 @@ def toSQL(Data,parameters):
     
     try:
         with connection.cursor() as cursor:
-            j=0
-            while j<len(Data)-1: #We fill the matrix sql_data following the model defined above
+            for j in range(0,len(Data)-1): #We fill the matrix sql_data following the model defined above
                 sql_data[:,j]=Data[j]
-                j=j+1
             sql_data=np.nan_to_num(sql_data) #All nan values are set to 0
-    
-    #We store all the data (all the 4500 samples for each of the 228 parameters)         
+                                  
+    #We store all the data (all the 4500 samples for each of the 230 parameters)         
             for k in range (0,len(Data[0])):
-                print("INSERT into `new_table` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,len(Data))))  + "})".format(*sql_data[k,:] ))
-                cursor.execute("INSERT into `new_table` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,len(Data))))  + "})".format(*sql_data[k,:] ))
+                querry_d="INSERT into `new_table` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,len(Data))))  + "})" ;
+                cursor.execute(querry_d.format(*sql_data[k,:] ))
         connection.commit()
-    
     finally:
         connection.close()
 
