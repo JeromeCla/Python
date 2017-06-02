@@ -6,8 +6,6 @@ Created on Tue May 30 13:28:49 2017
 """
 
 import scipy.io
-import matplotlib.pyplot as plt
-import pymysql
 import numpy as np
 import math
 import mmap
@@ -59,7 +57,7 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
 
     LenIniFile = len(FileIniNames);
 
-# Exctract the vparameter's number (i.e id)
+# Exctract the parameter's number (i.e id)
     substr=FileIniNames[k[0]:min(k[0]+100,LenIniFile)]
     substr_st = ''.join([chr(item) for item in substr])
     eq=substr_st.find('=')
@@ -68,7 +66,7 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
     list_char=''.join(list_char)
     VarNr=int(list_char)
 
-# Extract the gain (or unit) of the parameter
+# Extract the gain of the parameter
     substr=FileIniNames[k[1]:min(k[1]+100,LenIniFile)]
     substr_st = ''.join([chr(item) for item in substr])
     eq=substr_st.find('=')

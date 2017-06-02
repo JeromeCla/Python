@@ -11,8 +11,6 @@ Created on Wed May 24 16:48:31 2017
 
 @author: i0A103166
 """
-import scipy.io
-import matplotlib.pyplot as plt
 import pymysql
 import numpy as np
 

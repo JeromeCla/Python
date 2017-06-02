@@ -8,7 +8,6 @@ Created on Wed May 31 13:45:10 2017
 import readbinary as rb
 import matplotlib.pyplot as plt
 import testsql as sql
-import numpy as np
 
 DataFileName="_dataint32.bin"
 
