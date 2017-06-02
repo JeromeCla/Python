@@ -29,20 +29,14 @@ def toSQL(Data,parameters):
     
     #we connect to the database
     connection = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='root', db='testdb')
-    
-    #Define sql_data as matrix NxM with N=number of sample (4500) and M= number of features/parameters
-    sql_data=np.zeros((len(Data[0]),len(Data)))
-    
+
     try:
         with connection.cursor() as cursor:
-            for j in range(0,len(Data)-1): #We fill the matrix sql_data following the model defined above
-                sql_data[:,j]=Data[j]
-            sql_data=np.nan_to_num(sql_data) #All nan values are set to 0
-                                  
+            Data=np.nan_to_num(Data) #All nan values are set to 0
     #We store all the data (all the 4500 samples for each of the 230 parameters)         
             for k in range (0,len(Data[0])):
-                querry_d="INSERT into `new_table` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,len(Data))))  + "})" ;
-                cursor.execute(querry_d.format(*sql_data[k,:] ))
+                querry_d="INSERT into `new_table` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,230)))  + "})" ;
+                cursor.execute(querry_d.format(*np.transpose(Data)[k]))
         connection.commit()
     finally:
         connection.close()
