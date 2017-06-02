@@ -33,7 +33,7 @@ def toSQL(Data,parameters):
             Data=np.nan_to_num(Data) #All nan values are set to 0
     #We store all the data (all the 4500 samples for each of the 230 parameters)         
             for k in range (0,len(Data[0])):
-                querry_d="INSERT into `new_table` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,230)))  + "})" ;
+                querry_d="INSERT into `new_table_regime` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,len(Data))))  + "})" ;
                 cursor.execute(querry_d.format(*np.transpose(Data)[k]))
         connection.commit()
     finally:
@@ -47,7 +47,7 @@ def fromSQL(Name):
     try:
         with connection.cursor() as cursor:
             # execute the SQL query using execute() method.
-            cursor.execute ("select "+Name+ " from new_table")
+            cursor.execute ("select "+Name+ " from new_table_regime")
             # fetch all of the rows from the query
             data = cursor.fetchall ()
             

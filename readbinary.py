@@ -52,8 +52,8 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
     
     if not k:
         print ('La variable ' +SigName+ ' n''existe pas dans le fichier .ini')
-    elif len(k)<2:
-        print ('Le gain de la variable ' +SigName+ 'n''est pas défini dans le fichier .ini')
+    elif k[1]==-1:
+        print ('Le gain de la variable ' +SigName+ ' n''est pas défini dans le fichier .ini')
 
     LenIniFile = len(FileIniNames);
 
@@ -66,14 +66,17 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
     list_char=''.join(list_char)
     VarNr=int(list_char)
 
-# Extract the gain of the parameter
-    substr=FileIniNames[k[1]:min(k[1]+100,LenIniFile)]
-    substr_st = ''.join([chr(item) for item in substr])
-    eq=substr_st.find('=')
-    cr=substr_st.find(';')
-    list_char=[chr(i) for i in FileIniNames[k[1]+np.arange(eq+1,cr)]]
-    list_char=''.join(list_char)
-    VarGain=float(list_char)
+# Extract the gain of the parameter if there is one
+    if k[1] != -1:
+        substr=FileIniNames[k[1]:min(k[1]+100,LenIniFile)]
+        substr_st = ''.join([chr(item) for item in substr])
+        eq=substr_st.find('=')
+        cr=substr_st.find(';')
+        list_char=[chr(i) for i in FileIniNames[k[1]+np.arange(eq+1,cr)]]
+        list_char=''.join(list_char)
+        VarGain=float(list_char)
+    else: 
+        VarGain=1
     
     fid=open(DataFileName, 'r');
     skip_deb=vars*(idx_deb);
@@ -127,6 +130,7 @@ def readbinary(DataFileName):
     fid.close()
     
     vars = 235
+#    vars = 340
     Te   = 0.004
     
     with open('Variable.txt','r') as fd:
