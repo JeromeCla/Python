@@ -17,12 +17,10 @@ Data,parameters=rb.readbinary(DataFileName)
 # Handle the regime parameter #
 offset = 105-np.uint(Data[162][0]/(2**24))
 Regime=[]
-for i in range (offset,105):
-    a=(np.uint64(Data[162][i::105]) & 65535)
+for i in range (offset,105+offset):
+    a=(np.uint64(Data[162][(i%105)::105]) & 65535)
     Regime.append(a)    
-for i in range (0,offset):
-    a=(np.uint64(Data[162][i::105]) & 65535)
-    Regime.append(a)    
+
 
 
 #sql.toSQL(Data,parameters)
