@@ -130,20 +130,37 @@ def readbinary(DataFileName):
     fid.close()
     
     vars = 235
-#    vars = 340
     Te   = 0.004
     
     with open('Variable.txt','r') as fd:
         data = np.loadtxt(fd, delimiter=' ', dtype={'names': ('col1', 'col2', 'col3'), 'formats': ('S30', 'f8', 'S1')})
-    
+
     index_start = 0 ;
     index_end = math.inf ;
+    nbrRegimeVariable = np.uint(data[-1][1])+1 #total number of regime parameters
+    nbrVariableRegime=np.where(data.astype(str)=='TkEd_Regime_ETC')[0][0] #index of variable representing the regime
     
     Variable = []
-    
-    for i in range (0,len(data)): 
+    for i in range (0,len(data)-nbrRegimeVariable): #Variable process != regime
         Variable.append(GetTraceFromFile(data[i][0].astype(str), FileIniNames, DataFileName, vars, index_start, index_end, data[i][2].astype(str)))
-    return Variable,data.astype(str)
+
+    # Handle the regime parameters #
+    offset = nbrRegimeVariable-np.uint(Variable[nbrVariableRegime][0]/(2**24)) #first regime parameters recorded at t=0
+
+#    Regime=[]
+#    Regime_rep=[]
     
+#    for i in range (offset,nbrRegimeVariable+offset):
+#        a=(np.uint64(Variable[nbrVariableRegime][(i%nbrRegimeVariable)::nbrRegimeVariable]) & 65535)
+#        Regime.append(a)    
+# Same command but more compact and we can delete Regime initialization
+    Regime = [(np.uint64(Variable[nbrVariableRegime][(i%nbrRegimeVariable)::nbrRegimeVariable]) & 65535) for i in range (offset,nbrRegimeVariable+offset) ]
+
+#    for i in range (0,len(Regime)):
+#        Regime_rep.append(np.repeat(Regime[i],np.shape(Variable)[1]/len(Regime[i])))    
+# Same command but more compact and we can delete Regime_rep initialization
+    Regime_rep = [np.repeat(Regime[i],np.shape(Variable)[1]/len(Regime[i])) for i in range (0,len(Regime))]
+    
+    return Variable,Regime_rep,data.astype(str)
 
 

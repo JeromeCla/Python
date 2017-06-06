@@ -19,22 +19,27 @@ import numpy as np
 #         parameters=Name of parameters corresponding to the data to store 
 # Output : -
 # Work :   
-def toSQL(Data,parameters):
-    
+def toSQL(Data,Regime,parameters):
+        
     # For query we need to get all the name of the columns
     list_parameters = ','.join(parameters)
     #The name are in the list and list_parameters contains the name as name1,name2,name3 etc...
     
     #we connect to the database
     connection = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='root', db='testdb')
-
+    
     try:
         with connection.cursor() as cursor:
             Data=np.nan_to_num(Data) #All nan values are set to 0
     #We store all the data (all the 4500 samples for each of the 230 parameters)         
             for k in range (0,len(Data[0])):
-                querry_d="INSERT into `new_table_regime` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,len(Data))))  + "})" ;
-                cursor.execute(querry_d.format(*np.transpose(Data)[k]))
+                querry_d="INSERT into `table_regime` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,len(Data)+len(Regime))))  + "})" ;
+                try:
+                    regime_curr = [item[k] for item in Regime] 
+                except IndexError:
+                    print("OK")
+                    regime_curr= np.repeat("NULL",len(Regime))
+                cursor.execute(querry_d.format(*np.transpose(Data)[k],*regime_curr))
         connection.commit()
     finally:
         connection.close()
