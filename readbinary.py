@@ -77,7 +77,8 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
         VarGain=float(list_char)
     else: 
         VarGain=1
-    
+
+#Read the values and store them in Trace    
     fid=open(DataFileName, 'r');
     skip_deb=vars*(idx_deb);
     n_samples = idx_fin - idx_deb + 1;
@@ -103,8 +104,10 @@ def GetTraceFromFile(SigName, FileIniNames, DataFileName, vars, idx_deb, idx_fin
     fid.close()
     
     Trace[Trace==UndefinedVal]=np.nan;
+#If the parameter is set as signed         
     if Signe=='-': 
         Trace = Trace - 2**32*(Trace>=2**31)
+# apllication of the gain        
     Trace = Trace * VarGain;
     
     return Trace
@@ -145,22 +148,28 @@ def readbinary(DataFileName):
         Variable.append(GetTraceFromFile(data[i][0].astype(str), FileIniNames, DataFileName, vars, index_start, index_end, data[i][2].astype(str)))
 
     # Handle the regime parameters #
-    offset = nbrRegimeVariable-np.uint(Variable[nbrVariableRegime][0]/(2**24)) #first regime parameters recorded at t=0
-
-#    Regime=[]
-#    Regime_rep=[]
+        # np.uint(Variable[nbrVariableRegime][0]/(2**24)) : first regime parameters recorded at t=0
+        # offset :  find the value representing the first regime in TkEd_Regime_ETC (i.e. Variable[offset] = Regime [0])
+        # n : number of sample per variable
+    offset = nbrRegimeVariable-np.uint(Variable[nbrVariableRegime][0]/(2**24)) 
+    n=len(Variable[0]) 
     
-#    for i in range (offset,nbrRegimeVariable+offset):
-#        a=(np.uint64(Variable[nbrVariableRegime][(i%nbrRegimeVariable)::nbrRegimeVariable]) & 65535)
-#        Regime.append(a)    
-# Same command but more compact and we can delete Regime initialization
-    Regime = [(np.uint64(Variable[nbrVariableRegime][(i%nbrRegimeVariable)::nbrRegimeVariable]) & 65535) for i in range (offset,nbrRegimeVariable+offset) ]
-
-#    for i in range (0,len(Regime)):
-#        Regime_rep.append(np.repeat(Regime[i],np.shape(Variable)[1]/len(Regime[i])))    
-# Same command but more compact and we can delete Regime_rep initialization
-    Regime_rep = [np.repeat(Regime[i],np.shape(Variable)[1]/len(Regime[i])) for i in range (0,len(Regime))]
+    Regime=np.zeros((nbrRegimeVariable,n))+np.nan
     
-    return Variable,Regime_rep,data.astype(str)
+    for i in range (offset,nbrRegimeVariable+offset):
+    # We build one regime's signal by starting at one point, looping the on the
+    # first 105 values, and looking for its value every 105 measurments.
+        b=(np.uint64(Variable[nbrVariableRegime][(i%nbrRegimeVariable)::nbrRegimeVariable]) & 65535)
+    # Because one value for the regime is correct for the next 105 measurments,
+    # we scale to get the same number of samples as the other signals
+        a= np.repeat(b,nbrRegimeVariable) 
+    # Here we create the shift in the storage 
+    # i.e. the value for the first parameters might be unknown at the beginning so we will record Nan value 
+        start=i%nbrRegimeVariable
+        endmat=min(len(a)+start,n)
+        Regime[i-offset][start:endmat]=a[0:n-start]    
+        
+        
+    return Variable,Regime,data.astype(str)
 
 

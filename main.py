@@ -11,17 +11,15 @@ import testsql as sql
 import numpy as np
 
 
-
 DataFileName="_dataint32.bin"
 Data,Regime,parameters=rb.readbinary(DataFileName) 
 sql.toSQL(Data,Regime,parameters)
-
-##Some cleaning 
-#Name = 'MUS'
+#
+#Name = 'MUT'
 #data=sql.fromSQL(Name)
 #
-#Name = 'Main_EO_CLEN_Ctxte'
-#data1=sql.fromSQL(Name)
+#plt.plot(data1)
+
 
 
 #list_parameters = ','.join(parameters)

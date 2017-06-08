@@ -14,6 +14,7 @@ Created on Wed May 24 16:48:31 2017
 import pymysql
 import numpy as np
 
+
 # -------------------------------------------------toSQL--------------------------------- 
 # Input : Data=Data to store to the database
 #         parameters=Name of parameters corresponding to the data to store 
@@ -34,12 +35,13 @@ def toSQL(Data,Regime,parameters):
     #We store all the data (all the 4500 samples for each of the 230 parameters)         
             for k in range (0,len(Data[0])):
                 querry_d="INSERT into `table_regime` ("+list_parameters+") VALUES ({" + "},{".join((str(i) for i in range(0,len(Data)+len(Regime))))  + "})" ;
-                try:
-                    regime_curr = [item[k] for item in Regime] 
-                except IndexError:
-                    print("OK")
-                    regime_curr= np.repeat("NULL",len(Regime))
-                cursor.execute(querry_d.format(*np.transpose(Data)[k],*regime_curr))
+                regime_curr = [item[k] for item in Regime]
+                # The 'Nan' values are replaced by the value "NULL" to be stored in the DB properly
+                regime_curr2 = []
+                for x in regime_curr:
+                    if str(x) == 'nan': regime_curr2.append("NULL")
+                    else: regime_curr2.append(str(x))    
+                cursor.execute(querry_d.format(*np.transpose(Data)[k],*regime_curr2))
         connection.commit()
     finally:
         connection.close()
