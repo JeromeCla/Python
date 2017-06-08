@@ -14,15 +14,12 @@ import numpy as np
 DataFileName="_dataint32.bin"
 Data,Regime,parameters=rb.readbinary(DataFileName) 
 sql.toSQL(Data,Regime,parameters)
-#
+
 #Name = 'MUT'
 #data=sql.fromSQL(Name)
-#
-#plt.plot(data1)
-
-
 
 #list_parameters = ','.join(parameters)
-#
+
 #for k in range(0,len(parameters)):
 #    print("`"+parameters[k]+"` DECIMAL(10) DEFAULT NULL,")
+
